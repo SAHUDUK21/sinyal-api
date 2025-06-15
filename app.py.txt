@@ -1,0 +1,30 @@
+from flask import Flask, request, jsonify
+import datetime
+
+app = Flask(__name__)
+
+# Sinyal disimpan sementara di memori
+last_signal = {
+    "symbol": None,
+    "action": None,
+    "timestamp": None
+}
+
+@app.route('/')
+def home():
+    return "REST API Sinyal Aktif"
+
+@app.route('/sinyal', methods=['GET', 'POST'])
+def sinyal():
+    global last_signal
+    if request.method == 'POST':
+        data = request.get_json()
+        last_signal = {
+            "symbol": data.get("symbol"),
+            "action": data.get("action"),
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }
+        return jsonify({"status": "sinyal diterima", "data": last_signal})
+    
+    # Untuk GET: kirim sinyal terbaru
+    return jsonify(last_signal)
